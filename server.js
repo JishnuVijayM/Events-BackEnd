@@ -1,17 +1,18 @@
 const express = require('express')
-
+const adminAuthRouter = require('./routers/admin/adminAuthRoute')
+const { connectDb } = require('./utilis/db')
+require('dotenv').config()
 
 const app = express()
+app.use(express.json())
 
-app.get('/', (req, res) => {
-    return res.send("welcome")
-})
-
-app.get('/ab', (req, res) => {
-    return res.send("test")
-})
+app.use('/adminAuth', adminAuthRouter)
 
 
-app.listen(4000, () => {
-    console.log('server listening 4000');
+const PORT = process.env.PORT || 4000
+
+connectDb().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server listening on port: ${PORT}`);
+    })
 })
