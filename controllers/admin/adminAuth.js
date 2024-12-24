@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken')
 
 exports.initial = async (req, res) => {
     
+    console.log(`Welcome, user with ID: ${req.user.id}`);
+    
     const users = await User.find({});
 
     if(!users){
@@ -64,7 +66,7 @@ exports.register = async (req, res) => {
         }
 
         const saltRounds = parseInt(process.env.SALT) || 10;
-        const hashedPassword = await bycrypt.hash(password, saltRounds);
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         await User.create({
             userName,
