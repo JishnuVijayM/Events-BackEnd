@@ -1,12 +1,15 @@
 const express = require('express')
-const adminAuthRouter = require('./routers/admin/adminAuthRoute')
 const { connectDb } = require('./utilis/db')
 require('dotenv').config()
+
+const adminAuthRouter = require('./routers/admin/adminAuthRoute')
+const adminRoleRoutes = require('./routers/admin/adminRoleRoute')
 
 const app = express()
 app.use(express.json())
 
 app.use('/adminAuth', adminAuthRouter)
+app.use('/admin', adminRoleRoutes)
 
 
 const PORT = process.env.PORT || 4000

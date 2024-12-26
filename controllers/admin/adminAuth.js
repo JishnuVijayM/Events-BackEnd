@@ -3,9 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 
 exports.initial = async (req, res) => {
-    
-    console.log(`Welcome, user with ID: ${req.user.id}`);
-    
+        
     const users = await User.find({});
 
     if(!users){

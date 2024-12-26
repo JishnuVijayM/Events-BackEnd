@@ -17,9 +17,8 @@ const userSchema = new mongoose.Schema({
         trim: true
     },
     role: {
-        type: String,
+        type: [String],
         required: true,
-        enum: ['superAdmin','admin', 'user', 'moderator'],
     },
     country: {
         type: String,
