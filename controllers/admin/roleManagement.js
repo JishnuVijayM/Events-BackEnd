@@ -4,7 +4,6 @@ exports.createRole = async (req, res) => {
     try {
         const { name, description, permissions } = req.body;
 
-        // Validate input
         if (!name || !description || !permissions) {
             return res.status(400).json({ message: "Name, description, and permissions are required" });
         }
@@ -14,19 +13,16 @@ exports.createRole = async (req, res) => {
             return res.status(400).json({ message: "Role with this name already exists" });
         }
 
-        // Save the role with permissions directly from the payload
         const newRole = new Role({
             name,
             description,
             permissions
         });
 
-        // Save to database
         await newRole.save();
 
         res.status(201).json({
-            message: "Role created successfully",
-            data: newRole
+            message: "Role created successfully"
         });
     } catch (error) {
         res.status(500).json({

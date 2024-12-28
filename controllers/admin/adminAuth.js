@@ -1,13 +1,13 @@
 const User = require('../../models/userModel')
-const bcrypt = require('bcrypt'); 
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 
 exports.initial = async (req, res) => {
-        
+
     const users = await User.find({});
 
-    if(!users){
-        return res.status(404).json({message: "No user found"});
+    if (!users) {
+        return res.status(404).json({ message: "No user found" });
     }
 
     return res.status(200).json(users);
@@ -23,7 +23,7 @@ exports.login = async (req, res) => {
 
         const existUser = await User.findOne({ email });
         if (!existUser) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(401).json({ message: "Invalid credentials" });
         }
 
         if (!existUser.password) {
@@ -32,7 +32,7 @@ exports.login = async (req, res) => {
 
         const isPasswordValid = await bcrypt.compare(password, existUser.password);
         if (!isPasswordValid) {
-            return res.status(400).json({ message: "Invalid credentials" });
+            return res.status(401).json({ message: "Invalid credentials" });
         }
 
         const token = jwt.sign(
@@ -41,7 +41,11 @@ exports.login = async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRATION }
         );
 
-        return res.status(200).json({ message: "Login successful", token });
+        return res.status(200).json({
+            message: "Login successful",
+            token,
+            role: existUser.role,
+        });
     } catch (error) {
         console.error("Error during login:", error);
         return res.status(500).json({ message: "Internal server error" });

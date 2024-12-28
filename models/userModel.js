@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
         trim: true
     },
     role: {
-        type: [String],
+        type: String,
         required: true,
     },
     country: {
