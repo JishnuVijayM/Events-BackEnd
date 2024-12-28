@@ -7,7 +7,7 @@ const permissionSchema = new mongoose.Schema({
     },
     read: {
         type: Boolean,
-        required: true
+        required: false
     },
     add: {
         type: Boolean,

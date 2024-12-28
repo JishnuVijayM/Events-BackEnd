@@ -6,5 +6,4 @@ const router = express.Router()
 router.route('/createRole').post(authenticateJWT, createRole)
 router.route('/getRole').get(authenticateJWT, getRoles)
 
-
 module.exports = router

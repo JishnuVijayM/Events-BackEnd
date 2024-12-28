@@ -22,29 +22,32 @@ const userSchema = new mongoose.Schema({
     },
     country: {
         type: String,
-        required: false, 
     },
     gender: {
         type: String,
-        required: false,
         enum: ['male', 'female', 'other']
     },
     dateOfBirth: {
         type: Date,
-        required: false,
     },
     phone: {
         type: String,
-        required: false,
         validate: {
             validator: function (v) {
-                return /\d{10,15}/.test(v); 
+                return /\d{10,12}/.test(v);
             },
             message: props => `${props.value} is not a valid phone number!`
         }
+    },
+    resetPasswordToken: {
+        type: String,
+    },
+    resetPasswordExpire: {
+        type: Date,
     }
 }, {
     timestamps: true
 });
+
 
 module.exports = mongoose.model('User', userSchema);

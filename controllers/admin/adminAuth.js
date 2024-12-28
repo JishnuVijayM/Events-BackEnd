@@ -1,6 +1,9 @@
 const User = require('../../models/userModel')
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
+const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
 
 exports.initial = async (req, res) => {
 
@@ -90,3 +93,101 @@ exports.register = async (req, res) => {
         return res.status(500).json({ message: "Internal server error", error: error });
     }
 };
+
+
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Generate the reset link
+        const resetLink = `${process.env.CLIENT_URL}/adminAuth/reset-password/${token}`;
+
+        // Load the email template
+        const templatePath = path.join(__dirname, '../../templates/email_template.html'); // Adjusted path
+        let emailTemplate = fs.readFileSync(templatePath, 'utf8');
+
+        // Replace placeholders in the template
+        emailTemplate = emailTemplate
+            .replace('{{userName}}', user.userName || 'User') 
+            .replace('{{resetLink}}', resetLink);
+
+        // Configure the transporter
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+
+        // Set up email options
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Password Reset Request',
+            html: emailTemplate, // Use the HTML email template
+        };
+
+        // Send the email
+        transporter.sendMail(mailOptions, (err, info) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({ message: 'Error sending email', error: err });
+            }
+            return res.status(200).json({ message: 'Password reset link sent to your email' });
+        });
+
+    } catch (error) {
+        console.error('Forgot Password Error:', error);
+        return res.status(500).json({ message: 'Server error', error });
+    }
+};
+
+
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const { password } = req.body;
+
+        if (!token || !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            return res.status(400).json({ message: "Invalid or expired token" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+        const user = await User.findOne({ email: decoded.email });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        user.password = hashedPassword;
+        await user.save();
+
+        return res.status(200).json({ message: "Password has been reset successfully" });
+
+    } catch (error) {
+        console.error('Reset Password Error: ', error);
+        return res.status(500).json({ message: "Server error", error });
+    }
+};
+
