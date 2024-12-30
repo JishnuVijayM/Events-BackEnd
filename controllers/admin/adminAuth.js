@@ -6,7 +6,6 @@ const fs = require('fs');
 const path = require('path');
 
 exports.initial = async (req, res) => {
-
     const users = await User.find({});
 
     if (!users) {
@@ -94,7 +93,6 @@ exports.register = async (req, res) => {
     }
 };
 
-
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
@@ -111,19 +109,15 @@ exports.forgotPassword = async (req, res) => {
 
         const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Generate the reset link
         const resetLink = `${process.env.CLIENT_URL}/adminAuth/reset-password/${token}`;
 
-        // Load the email template
-        const templatePath = path.join(__dirname, '../../templates/email_template.html'); // Adjusted path
+        const templatePath = path.join(__dirname, '../../templates/email_template.html'); 
         let emailTemplate = fs.readFileSync(templatePath, 'utf8');
 
-        // Replace placeholders in the template
         emailTemplate = emailTemplate
             .replace('{{userName}}', user.userName || 'User') 
             .replace('{{resetLink}}', resetLink);
 
-        // Configure the transporter
         const transporter = nodemailer.createTransport({
             service: 'gmail',
             auth: {
@@ -132,15 +126,13 @@ exports.forgotPassword = async (req, res) => {
             },
         });
 
-        // Set up email options
         const mailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
             subject: 'Password Reset Request',
-            html: emailTemplate, // Use the HTML email template
+            html: emailTemplate,
         };
 
-        // Send the email
         transporter.sendMail(mailOptions, (err, info) => {
             if (err) {
                 console.log(err);
