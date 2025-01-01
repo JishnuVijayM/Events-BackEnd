@@ -109,7 +109,7 @@ exports.forgotPassword = async (req, res) => {
 
         const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        const resetLink = `${process.env.CLIENT_URL}/adminAuth/reset-password/${token}`;
+        const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
         const templatePath = path.join(__dirname, '../../templates/email_template.html'); 
         let emailTemplate = fs.readFileSync(templatePath, 'utf8');
@@ -136,7 +136,7 @@ exports.forgotPassword = async (req, res) => {
         transporter.sendMail(mailOptions, (err, info) => {
             if (err) {
                 console.log(err);
-                return res.status(500).json({ message: 'Error sending email', error: err });
+                return res.status(451).json({ message: 'Error sending email', error: err });
             }
             return res.status(200).json({ message: 'Password reset link sent to your email' });
         });
@@ -161,7 +161,7 @@ exports.resetPassword = async (req, res) => {
         try {
             decoded = jwt.verify(token, process.env.JWT_SECRET);
         } catch (err) {
-            return res.status(400).json({ message: "Invalid or expired token" });
+            return res.status(401).json({ message: "Invalid or expired token" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 12);
