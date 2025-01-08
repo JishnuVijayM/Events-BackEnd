@@ -33,7 +33,7 @@ exports.createRole = async (req, res) => {
 };
 
 
-exports.getRoles = async (req, res) => {
+exports.getAllRoles = async (req, res) => {
     try {
         const roleList = await Role.find();
 
@@ -49,3 +49,27 @@ exports.getRoles = async (req, res) => {
         });
     }
 };
+
+exports.getRole = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: 'Id not found' })
+        }
+
+        const roleDetail = await Role.findById(id)
+
+        if (!roleDetail) {
+            return res.status(404).json({ message: "No roles found" });
+        }
+
+        return res.status(200).json(roleDetail)
+
+    } catch (error) {
+        res.status(500).json({
+            message: "An error occurred while fetching the role",
+            error: error.message
+        });
+    }
+}
