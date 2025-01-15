@@ -3,8 +3,8 @@ const { connectDb } = require('./utilis/db')
 require('dotenv').config()
 const cors = require('cors');
 
-const adminAuthRouter = require('./routers/admin/adminAuthRoute')
-const adminRoleRoutes = require('./routers/admin/adminRoleRoute')
+const adminAuthRouter = require('./routers/admin/authRoute')
+const adminRoleRoutes = require('./routers/admin/roleRoute')
 
 const app = express()
 app.use(express.json())

@@ -95,4 +95,42 @@ exports.deleteRole = async (req, res) => {
         res.status(500).json({ message: 'An error occurred', error: error.message });
     }
 };
-    
+
+exports.editRole = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, description, permissions } = req.body;
+
+        console.log("id",id);
+
+        console.log('data',req.body);
+        
+        
+
+        if (!id) {
+            return res.status(400).json({ message: 'ID is required' });
+        }
+
+        if (!name || !description || !permissions) {
+            return res.status(400).json({ message: "Name, description, and permissions are required" });
+        }
+
+        const updatedItem = await Role.findByIdAndUpdate(id, req.body, { new: true });
+
+        if (!updatedItem) {
+            return res.status(404).json({ message: 'Item not found' });
+        }
+
+        return res.status(201).json({
+            message: 'Role updated successfully'
+        });
+
+    } catch (error) {
+        console.error('Error updating role:', error);
+        return res.status(500).json({
+            message: 'An error occurred while updating the role',
+            error: error.message,
+        });
+    }
+};
+
