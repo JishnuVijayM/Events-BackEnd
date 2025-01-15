@@ -73,3 +73,26 @@ exports.getRole = async (req, res) => {
         });
     }
 }
+
+exports.deleteRole = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: 'Id not found' });
+        }
+
+        const roleList = await Role.findById(id);
+
+        if (!roleList) {
+            return res.status(404).json({ message: 'No roles found' });
+        }
+
+        await roleList.deleteOne();
+        res.status(200).json({ message: 'Role deleted successfully' });
+
+    } catch (error) {
+        res.status(500).json({ message: 'An error occurred', error: error.message });
+    }
+};
+    

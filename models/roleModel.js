@@ -28,7 +28,7 @@ const roleSchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        unique: true // Ensure each role has a unique name
+        unique: true 
     },
     description: {
         type: String,
@@ -36,7 +36,7 @@ const roleSchema = new mongoose.Schema({
     },
     permissions: {
         dashboard: [permissionSchema],
-        Administration: [permissionSchema],
+        administration: [permissionSchema],
         jobManagement: [permissionSchema],
         eventManagement: [permissionSchema],
         settings: [permissionSchema]
@@ -46,3 +46,4 @@ const roleSchema = new mongoose.Schema({
 const Role = mongoose.model('Role', roleSchema);
 
 module.exports = Role;
+
