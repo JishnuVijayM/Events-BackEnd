@@ -1,7 +1,10 @@
 const Role = require('../../models/roleModel');
+const User = require('../../models/userModel')
 
 exports.createRole = async (req, res) => {
     try {
+        const userId = req.user.userId;
+
         const { name, description, permissions } = req.body;
 
         if (!name || !description || !permissions) {
@@ -16,7 +19,8 @@ exports.createRole = async (req, res) => {
         const newRole = new Role({
             name,
             description,
-            permissions
+            permissions,
+            updatedBy : userId
         });
 
         await newRole.save();
@@ -32,16 +36,33 @@ exports.createRole = async (req, res) => {
     }
 };
 
-
 exports.getAllRoles = async (req, res) => {
     try {
-        const roleList = await Role.find();
+        const [roleList, userList] = await Promise.all([
+            Role.find(),
+            User.find()
+        ]); 
 
         if (!roleList.length) {
             return res.status(404).json({ message: "No roles found" });
         }
 
-        return res.status(200).json(roleList);
+        const updatedData = roleList.map((item, index) => {
+            const userData = userList.find(
+                user => user._id.toString() === (item.updatedBy?.toString() || '')
+            );
+
+            return {
+                id: item._id,
+                no: index + 1,
+                name: item.name,
+                description: item.description,
+                'updated-by': userData?.userName || 'Not Found',
+                'last-updated':new Date(item.updatedAt).toLocaleString()
+            };
+        });
+
+        return res.status(200).json(updatedData);
     } catch (error) {
         res.status(500).json({
             message: "An error occurred while fetching the roles",
@@ -99,13 +120,9 @@ exports.deleteRole = async (req, res) => {
 exports.editRole = async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.user.userId;
+
         const { name, description, permissions } = req.body;
-
-        console.log("id",id);
-
-        console.log('data',req.body);
-        
-        
 
         if (!id) {
             return res.status(400).json({ message: 'ID is required' });
@@ -115,7 +132,9 @@ exports.editRole = async (req, res) => {
             return res.status(400).json({ message: "Name, description, and permissions are required" });
         }
 
-        const updatedItem = await Role.findByIdAndUpdate(id, req.body, { new: true });
+        const updateData = { ...req.body, updatedBy: userId };
+
+        const updatedItem = await Role.findByIdAndUpdate(id, updateData, { new: true });
 
         if (!updatedItem) {
             return res.status(404).json({ message: 'Item not found' });

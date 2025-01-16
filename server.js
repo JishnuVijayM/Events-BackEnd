@@ -5,13 +5,16 @@ const cors = require('cors');
 
 const adminAuthRouter = require('./routers/admin/authRoute')
 const adminRoleRoutes = require('./routers/admin/roleRoute')
+const adminUserRoutes = require('./routers/admin/userRoute')
 
 const app = express()
 app.use(express.json())
 app.use(cors());
 
 app.use('/adminAuth', adminAuthRouter)
-app.use('/admin', adminRoleRoutes)
+app.use('/role', adminRoleRoutes)
+app.use('/user', adminUserRoutes)
+
 
 
 const PORT = process.env.PORT || 4000

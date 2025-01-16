@@ -40,7 +40,10 @@ const roleSchema = new mongoose.Schema({
         jobManagement: [permissionSchema],
         eventManagement: [permissionSchema],
         settings: [permissionSchema]
-    }
+    },
+    updatedBy: {
+        type: String,
+    },
 }, { timestamps: true });
 
 const Role = mongoose.model('Role', roleSchema);
