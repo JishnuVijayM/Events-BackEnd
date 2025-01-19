@@ -16,7 +16,6 @@ app.use('/role', adminRoleRoutes)
 app.use('/user', adminUserRoutes)
 
 
-
 const PORT = process.env.PORT || 4000
 
 connectDb().then(() => {

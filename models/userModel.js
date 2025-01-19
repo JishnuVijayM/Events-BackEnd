@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-    },
+    },      
     email: {
         type: String,
         required: true,
@@ -23,21 +23,14 @@ const userSchema = new mongoose.Schema({
     country: {
         type: String,
     },
-    gender: {
+    state: {
         type: String,
-        enum: ['male', 'female', 'other']
     },
-    dateOfBirth: {
-        type: Date,
+    district: {
+        type: String,
     },
     phone: {
         type: String,
-        validate: {
-            validator: function (v) {
-                return /\d{10,12}/.test(v);
-            },
-            message: props => `${props.value} is not a valid phone number!`
-        }
     },
     lastLoginAt: {
         type: Date,
@@ -47,10 +40,12 @@ const userSchema = new mongoose.Schema({
     },
     resetPasswordExpire: {
         type: Date,
+    },
+    profilePicture: {
+        type: String,
     }
 }, {
     timestamps: true
 });
-
 
 module.exports = mongoose.model('User', userSchema);
