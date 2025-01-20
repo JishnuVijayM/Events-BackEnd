@@ -42,22 +42,24 @@ exports.getAllUsers = async (req, res) => {
     }
 };
 
-
-
 exports.createUser = async (req, res) => {
     try {
         const { userName, email, password, role, country, state, district, phone } = req.body;
         const profilePicture = req.file ? req.file.path : null;
 
         if (!userName || !email || !password || !role || !country || !state || !district || !phone) {
-            if (profilePicture) fs.unlinkSync(profilePicture); 
+            if (profilePicture) fs.unlinkSync(profilePicture);
             return res.status(400).json({ message: "Missing fields" });
+        }
+
+        if (!profilePicture) {
+            return res.status(400).json({ message: "Please provide profile picture" });
         }
 
         const existingUser = await User.findOne({ email });
 
         if (existingUser) {
-            if (profilePicture) fs.unlinkSync(profilePicture); 
+            if (profilePicture) fs.unlinkSync(profilePicture);
             return res.status(400).json({ message: "User with this email already exists" });
         }
 
@@ -90,3 +92,24 @@ exports.createUser = async (req, res) => {
     }
 };
 
+exports.deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: 'Id not found' });
+        }
+
+        const userList = await User.findById(id);
+
+        if (!userList) {
+            return res.status(404).json({ message: 'No Users found' });
+        }
+
+        await userList.deleteOne();
+        res.status(200).json({ message: 'User deleted successfully' });
+
+    } catch (error) {
+        res.status(500).json({ message: 'An error occurred', error: error.message });
+    }
+};

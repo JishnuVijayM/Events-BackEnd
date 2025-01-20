@@ -20,7 +20,7 @@ exports.createRole = async (req, res) => {
             name,
             description,
             permissions,
-            updatedBy : userId
+            updatedBy: userId
         });
 
         await newRole.save();
@@ -41,7 +41,7 @@ exports.getAllRoles = async (req, res) => {
         const [roleList, userList] = await Promise.all([
             Role.find(),
             User.find()
-        ]); 
+        ]);
 
         if (!roleList.length) {
             return res.status(404).json({ message: "No roles found" });
@@ -58,7 +58,7 @@ exports.getAllRoles = async (req, res) => {
                 name: item.name,
                 description: item.description,
                 'updated-by': userData?.userName || 'Not Found',
-                'last-updated':new Date(item.updatedAt).toLocaleString()
+                'last-updated': new Date(item.updatedAt).toLocaleString()
             };
         });
 
@@ -71,7 +71,7 @@ exports.getAllRoles = async (req, res) => {
     }
 };
 
-exports.getRole = async (req, res) => {
+exports.viewRole = async (req, res) => {
     try {
         const { id } = req.params;
 
@@ -153,3 +153,28 @@ exports.editRole = async (req, res) => {
     }
 };
 
+exports.getRole = async (req, res) => {
+    try {
+
+        const roles = await Role.find()
+
+        if (!roles) {
+            return res.status(404).json({ message: "No roles found" });
+        }
+
+        const updatedRole = roles.map((item) => {
+            return {
+                value: item._id,
+                label: item.name
+            };
+        })
+
+        return res.status(200).json(updatedRole)
+
+    } catch (error) {
+        res.status(500).json({
+            message: "An error occurred while fetching the role",
+            error: error.message
+        });
+    }
+}
