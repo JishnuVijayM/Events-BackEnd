@@ -106,10 +106,46 @@ exports.deleteUser = async (req, res) => {
             return res.status(404).json({ message: 'No Users found' });
         }
 
+        if (userList.profilePicture) {
+            try {
+
+                fs.unlinkSync(userList.profilePicture);
+                console.log('Profile picture deleted successfully');
+            } catch (err) {
+                console.error('Error deleting profile picture:', err);
+
+            }
+        }
+
         await userList.deleteOne();
-        res.status(200).json({ message: 'User deleted successfully' });
+        res.status(200).json({ message: 'User and profile picture deleted successfully' });
 
     } catch (error) {
         res.status(500).json({ message: 'An error occurred', error: error.message });
     }
 };
+
+
+exports.viewUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: 'Id not found' })
+        }
+
+        const userDetail = await User.findById(id)
+
+        if (!userDetail) {
+            return res.status(404).json({ message: "No user found" });
+        }
+
+        return res.status(200).json(userDetail)
+
+    } catch (error) {
+        res.status(500).json({
+            message: "An error occurred while fetching the user",
+            error: error.message
+        });
+    }
+}
