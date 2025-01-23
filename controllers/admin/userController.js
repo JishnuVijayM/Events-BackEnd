@@ -44,10 +44,10 @@ exports.getAllUsers = async (req, res) => {
 
 exports.createUser = async (req, res) => {
     try {
-        const { userName, email, password, role, country, state, district, phone } = req.body;
+        const { userName, email, password, role, country, state, city, phone } = req.body;
         const profilePicture = req.file ? req.file.path : null;
 
-        if (!userName || !email || !password || !role || !country || !state || !district || !phone) {
+        if (!userName || !email || !password || !role || !country || !state || !city || !phone) {
             if (profilePicture) fs.unlinkSync(profilePicture);
             return res.status(400).json({ message: "Missing fields" });
         }
@@ -72,7 +72,7 @@ exports.createUser = async (req, res) => {
             role,
             country,
             state,
-            district,
+            city,
             phone,
             profilePicture,
         });
@@ -149,3 +149,76 @@ exports.viewUser = async (req, res) => {
         });
     }
 }
+
+exports.updateUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { userName, email, role, country, state, city, phone } = req.body;
+        const profilePicture = req.file ? req.file.path : null;
+
+        if (!id) {
+            if (profilePicture) fs.unlinkSync(profilePicture);
+            return res.status(400).json({ message: 'Id not found' });
+        }
+
+        const user = await User.findById(id);
+
+        if (!user) {
+            if (profilePicture) fs.unlinkSync(profilePicture);
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if email is being changed and if it already exists
+        if (email !== user.email) {
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                if (profilePicture) fs.unlinkSync(profilePicture);
+                return res.status(400).json({ message: 'Email already exists' });
+            }
+        }
+
+        // If new profile picture is uploaded, delete the old one
+        if (profilePicture && user.profilePicture) {
+            try {
+                fs.unlinkSync(user.profilePicture);
+            } catch (err) {
+                console.error('Error deleting old profile picture:', err);
+            }
+        }
+
+        // Update user data
+        const updateData = {
+            userName: userName || user.userName,
+            email: email || user.email,
+            role: role || user.role,
+            country: country || user.country,
+            state: state || user.state,
+            city: city || user.city,
+            phone: phone || user.phone,
+        };
+
+        // Only add profile picture to update if a new one is provided
+        if (profilePicture) {
+            updateData.profilePicture = profilePicture;
+        }
+
+        await User.findByIdAndUpdate(
+            id,
+            updateData,
+            { new: true }
+        );
+
+        res.status(201).json({
+            message: 'User updated successfully'
+        });
+
+    } catch (error) {
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
+        res.status(500).json({
+            message: 'An error occurred while updating the user',
+            error: error.message
+        });
+    }
+};

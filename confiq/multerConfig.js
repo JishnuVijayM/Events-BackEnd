@@ -2,49 +2,79 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        let folderName = 'uploads/';
-        if (req.path.includes('createUser')) {
-            folderName += 'userProfile/';
-        } else if (req.path.includes('createChild')) {
-            folderName += 'childBanner/';
+// Create base uploads directory if it doesn't exist
+const createUploadDirectories = () => {
+    const directories = ['uploads', 'uploads/userProfile', 'uploads/childBanner'];
+    directories.forEach(dir => {
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
         }
-        
-        // Create directory if it doesn't exist
-        if (!fs.existsSync(folderName)) {
-            fs.mkdirSync(folderName, { recursive: true });
-        }
-        
-        cb(null, folderName);
-    },
-    filename: (req, file, cb) => {
-        // Add file extension handling
-        const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const extension = path.extname(file.originalname);
-        cb(null, uniqueName + extension);
-    }
-});
-
-const fileFilter = (req, file, cb) => {
-    // Add mimetype checking in addition to extension
-    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png'];
-    if (!allowedMimes.includes(file.mimetype)) {
-        req.fileValidationError = 'Only image files are allowed!';
-        return cb(new Error('Only image files are allowed!'), false);
-    }
-    cb(null, true);
+    });
 };
 
-const upload = multer({
-    storage: storage,
-    limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB max-limit
+// Create directories on startup
+createUploadDirectories();
+
+// Configure storage
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        let uploadPath = 'uploads/';
+
+        // Determine the appropriate subdirectory based on the route
+        if (req.originalUrl.includes('/createUser') || req.originalUrl.includes('/updateUser')) {
+            uploadPath += 'userProfile';
+        } else if (req.originalUrl.includes('/createChild')) {
+            uploadPath += 'childBanner';
+        } else {
+            uploadPath += 'misc'; // Default directory for unspecified routes
+        }
+
+        // Ensure the directory exists
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+
+        cb(null, uploadPath);
     },
-    fileFilter: fileFilter
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const fileExtension = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + fileExtension);
+    }
 });
 
+// Configure file filter
+const fileFilter = (req, file, cb) => {
+    // Define allowed mime types
+    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+
+    if (allowedMimes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Invalid file type. Only JPEG, JPG, PNG, and GIF files are allowed.'), false);
+    }
+};
+
+// Create multer instance with configuration
+const upload = multer({
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 5 * 1024 * 1024 // 5MB limit
+    }
+});
+
+// Export different upload configurations
 module.exports = {
+    // Single file upload
     single: (fieldName) => upload.single(fieldName),
+
+    // Multiple files upload
     array: (fieldName, maxCount) => upload.array(fieldName, maxCount),
+
+    // Multiple fields upload
+    fields: (fields) => upload.fields(fields),
+
+    // Raw multer instance
+    upload: upload
 };
