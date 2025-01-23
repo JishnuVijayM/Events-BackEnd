@@ -18,6 +18,7 @@ exports.getAllUsers = async (req, res) => {
         const updatedData = userList.map((item, index) => {
 
             const roleData = roleList.find((role) => role._id.toString() === item.role.toString());
+            const updatedByUser = userList.find((user) => user._id.toString() === item.updatedBy?.toString());
 
             return {
                 id: item._id,
@@ -26,7 +27,7 @@ exports.getAllUsers = async (req, res) => {
                 role: roleData ? roleData.name : 'Unknown',
                 mobile: item.phone,
                 email: item.email,
-                'updated-by': 'Dev',
+                'updated-by': updatedByUser ? updatedByUser.userName : 'Unknown',
                 'last-login': new Date(item.lastLoginAt).toLocaleString() || null,
                 'last-updated': new Date(item.updatedAt).toLocaleString()
             };
@@ -46,6 +47,7 @@ exports.createUser = async (req, res) => {
     try {
         const { userName, email, password, role, country, state, city, phone } = req.body;
         const profilePicture = req.file ? req.file.path : null;
+        const userId = req.user.userId;
 
         if (!userName || !email || !password || !role || !country || !state || !city || !phone) {
             if (profilePicture) fs.unlinkSync(profilePicture);
@@ -75,6 +77,7 @@ exports.createUser = async (req, res) => {
             city,
             phone,
             profilePicture,
+            updatedBy: userId
         });
 
         await newUser.save();
@@ -155,6 +158,7 @@ exports.updateUser = async (req, res) => {
         const { id } = req.params;
         const { userName, email, role, country, state, city, phone } = req.body;
         const profilePicture = req.file ? req.file.path : null;
+        const userId = req.user.userId;
 
         if (!id) {
             if (profilePicture) fs.unlinkSync(profilePicture);
@@ -195,6 +199,7 @@ exports.updateUser = async (req, res) => {
             state: state || user.state,
             city: city || user.city,
             phone: phone || user.phone,
+            updatedBy: userId || user.updatedBy
         };
 
         // Only add profile picture to update if a new one is provided

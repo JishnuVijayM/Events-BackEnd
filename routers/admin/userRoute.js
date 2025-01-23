@@ -9,7 +9,7 @@ router.route('/getUsers').get(getAllUsers)
 router.post('/createUser', uploadConfig.single('profilePicture'), authenticateJWT, createUser);
 router.route('/deleteUser/:id').delete(authenticateJWT, deleteUser)
 router.route('/viewUser/:id').get(viewUser)
-router.put('/updateUser/:id', uploadConfig.single('profilePicture'), updateUser);
+router.put('/updateUser/:id', uploadConfig.single('profilePicture'), authenticateJWT, updateUser);
 
 // Example of handling child banner uploads
 // router.post('/createChild', uploadConfig.single('bannerPicture'), authenticateJWT, createChild);
