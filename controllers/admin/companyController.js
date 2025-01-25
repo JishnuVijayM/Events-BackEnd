@@ -5,23 +5,7 @@ const Company = require('../../models/companyModel')
 exports.createCompany = async (req, res) => {
     try {
 
-        // companyName: '',
-        // industry: '',
-        // companyAddress: '',
-        // country: '',
-        // state: '',
-        // city: '',
-        // email: '',
-        // phone: '',
-        // password: '',
-        // confirmPassword: '',
-        // jobPosition: '',
-        // vacancy: '',
-        // eventName: '',
-        // companyLogo: null,
-
-
-        const { companyName, industry, companyAddress,  country, state, city, email, phone, password, jobPosition, vacancy, eventName } = req.body;
+        const { companyName, industry, companyAddress, country, state, city, email, phone, password, jobPosition, vacancy, eventName } = req.body;
         const companyLogo = req.file ? req.file.path : null;
         // const userId = req.user.userId;
 
@@ -52,7 +36,7 @@ exports.createCompany = async (req, res) => {
             city,
             email,
             phone,
-            password : hashedPassword,
+            password: hashedPassword,
             jobPosition,
             vacancy,
             eventName,
@@ -73,3 +57,61 @@ exports.createCompany = async (req, res) => {
         });
     }
 };
+
+exports.getAllCompany = async (req, res) => {
+    try {
+        const companyList = await Company.find();
+
+        if (!companyList.length) {
+            return res.status(404).json({ message: "No data found" });
+        }
+
+
+        const updatedData = companyList.map((item, index) => {
+
+            return {
+                id: item._id,
+                no: index + 1,
+                'company name': item.companyName,
+                industry: item.industry,
+                'recruitment event': item.eventName,
+                'job position': item.jobPosition,
+                'candidates applied': 'Unknown',
+                'event date': new Date().toLocaleString(),
+                status: 'Active'
+            };
+        });
+
+        return res.status(200).json(updatedData);
+
+    } catch (error) {
+        res.status(500).json({
+            message: "An error occurred while fetching the user",
+            error: error.message
+        });
+    }
+};
+
+exports.viewCompany = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: 'Id not found' })
+        }
+
+        const companyDetail = await Company.findById(id)
+
+        if (!companyDetail) {
+            return res.status(404).json({ message: "No company found" });
+        }
+
+        return res.status(200).json(companyDetail)
+
+    } catch (error) {
+        res.status(500).json({
+            message: "An error occurred while fetching the company",
+            error: error.message
+        });
+    }
+}
