@@ -140,7 +140,7 @@ exports.editRole = async (req, res) => {
             return res.status(404).json({ message: 'Item not found' });
         }
 
-        return res.status(201).json({
+        return res.status(201).json({ 
             message: 'Role updated successfully'
         });
 

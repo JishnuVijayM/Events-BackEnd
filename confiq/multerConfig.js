@@ -4,7 +4,7 @@ const path = require('path');
 
 // Create base uploads directory if it doesn't exist
 const createUploadDirectories = () => {
-    const directories = ['uploads', 'uploads/userProfile', 'uploads/childBanner'];
+    const directories = ['uploads', 'uploads/userProfile', 'uploads/companyLogo'];
     directories.forEach(dir => {
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
@@ -23,8 +23,8 @@ const storage = multer.diskStorage({
         // Determine the appropriate subdirectory based on the route
         if (req.originalUrl.includes('/createUser') || req.originalUrl.includes('/updateUser')) {
             uploadPath += 'userProfile';
-        } else if (req.originalUrl.includes('/createChild')) {
-            uploadPath += 'childBanner';
+        } else if (req.originalUrl.includes('/createCompany') || req.originalUrl.includes('/updateCompany')) {
+            uploadPath += 'companyLogo';
         } else {
             uploadPath += 'misc'; // Default directory for unspecified routes
         }

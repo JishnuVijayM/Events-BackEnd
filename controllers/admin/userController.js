@@ -172,7 +172,6 @@ exports.updateUser = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if email is being changed and if it already exists
         if (email !== user.email) {
             const existingUser = await User.findOne({ email });
             if (existingUser) {
@@ -181,7 +180,6 @@ exports.updateUser = async (req, res) => {
             }
         }
 
-        // If new profile picture is uploaded, delete the old one
         if (profilePicture && user.profilePicture) {
             try {
                 fs.unlinkSync(user.profilePicture);
@@ -202,7 +200,6 @@ exports.updateUser = async (req, res) => {
             updatedBy: userId || user.updatedBy
         };
 
-        // Only add profile picture to update if a new one is provided
         if (profilePicture) {
             updateData.profilePicture = profilePicture;
         }

@@ -11,7 +11,4 @@ router.route('/deleteUser/:id').delete(authenticateJWT, deleteUser)
 router.route('/viewUser/:id').get(viewUser)
 router.put('/updateUser/:id', uploadConfig.single('profilePicture'), authenticateJWT, updateUser);
 
-// Example of handling child banner uploads
-// router.post('/createChild', uploadConfig.single('bannerPicture'), authenticateJWT, createChild);
-
 module.exports = router
