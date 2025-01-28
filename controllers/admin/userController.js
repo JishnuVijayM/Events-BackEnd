@@ -121,13 +121,12 @@ exports.deleteUser = async (req, res) => {
         }
 
         await userList.deleteOne();
-        res.status(200).json({ message: 'User and profile picture deleted successfully' });
+        res.status(200).json({ message: 'User deleted successfully' });
 
     } catch (error) {
         res.status(500).json({ message: 'An error occurred', error: error.message });
     }
 };
-
 
 exports.viewUser = async (req, res) => {
     try {
