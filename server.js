@@ -9,6 +9,7 @@ const adminAuthRouter = require('./routers/admin/authRoute')
 const adminRoleRoutes = require('./routers/admin/roleRoute')
 const adminUserRoutes = require('./routers/admin/userRoute')
 const companyRoutes = require('./routers/admin/companyRoute')
+const jobRoutes = require('./routers/admin/jobRoute')
 
 
 const app = express()
@@ -21,6 +22,7 @@ app.use('/adminAuth', adminAuthRouter)
 app.use('/role', adminRoleRoutes)
 app.use('/user', adminUserRoutes)
 app.use('/company', companyRoutes)
+app.use('/job', jobRoutes)
 
 const PORT = process.env.PORT || 4000
 

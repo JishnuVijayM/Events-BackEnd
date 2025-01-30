@@ -22,7 +22,7 @@ exports.createCompany = async (req, res) => {
 
         if (existingCompany) {
             if (companyLogo) fs.unlinkSync(companyLogo);
-            return res.status(400).json({ message: "Coompany with this email already exists" });
+            return res.status(400).json({ message: "Company with this email already exists" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
