@@ -1,8 +1,10 @@
 const express = require('express')
-const { createJob } = require('../../controllers/admin/jobController')
+const { createJob, getAllJobs } = require('../../controllers/admin/jobController')
+const { authenticateJWT } = require('../../middleware/jwtVerification')
 
 const router = express.Router()
 
-router.post('/createJob', createJob)
+router.post('/createJob', authenticateJWT, createJob)
+router.get('/getJobs',getAllJobs)
 
 module.exports = router

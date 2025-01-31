@@ -5,7 +5,7 @@ exports.createJob = async (req, res) => {
 
     try {
         if (!jobTitle || !company || !location || !skill || !salaryRange || !employmentType || !experience || !eduLevel || !vacancy || !deadline || !status) {
-            return res.status(400).json({ message: "Missing fields" })
+            return res.status(400).json({ message: "Please fill in all required fields" })
         }
 
         const newJob = new Job({ jobTitle, company, location, skill, salaryRange, employmentType, experience, eduLevel, vacancy, deadline, status })
@@ -21,4 +21,34 @@ exports.createJob = async (req, res) => {
         });
     }
 
+}
+
+exports.getAllJobs = async (req,res)=>{
+    try {
+        const jobList = await Job.find()
+
+        if (!jobList.length) return res.status(404).json({ message: "No jobs found" });
+
+        const updatedData = jobList.map((item, index) => {
+            return {
+                id: item._id,
+                no: index + 1,
+                'job title': item.jobTitle,
+                'company name': item.company,
+                'recruitment event': 'pending',
+                'location': item.location,
+                'candidates applied': 'pending',
+                vacancies: item.vacancy,
+                status: item.status
+            };
+        });
+
+        return res.status(200).json(updatedData);
+        
+    } catch (error) {
+        res.status(500).json({
+            message: "An error occurred while fetching job deatails",
+            error: error.message
+        });
+    }
 }

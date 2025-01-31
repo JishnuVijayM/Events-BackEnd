@@ -11,7 +11,7 @@ exports.createCompany = async (req, res) => {
 
         if (!companyName || !industry || !companyAddress || !country || !state || !city || !email || !phone || !password || !jobPosition || !vacancy || !eventName) {
             if (companyLogo) fs.unlinkSync(companyLogo);
-            return res.status(400).json({ message: "Missing fields" });
+            return res.status(400).json({ message: "Please fill in all required fields" });
         }
 
         if (!companyLogo) {

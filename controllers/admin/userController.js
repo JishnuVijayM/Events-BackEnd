@@ -51,7 +51,7 @@ exports.createUser = async (req, res) => {
 
         if (!userName || !email || !password || !role || !country || !state || !city || !phone) {
             if (profilePicture) fs.unlinkSync(profilePicture);
-            return res.status(400).json({ message: "Missing fields" });
+            return res.status(400).json({ message: "Please fill in all required fields" });
         }
 
         if (!profilePicture) {
