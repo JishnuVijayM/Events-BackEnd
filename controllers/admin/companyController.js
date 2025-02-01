@@ -146,7 +146,8 @@ exports.deleteCompany = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'An error occurred', error: error.message });
     }
-};
+}
+
 
 exports.updateCompany = async (req, res) => {
     try {
@@ -175,7 +176,6 @@ exports.updateCompany = async (req, res) => {
             }
         }
 
-        // Handle company logo replacement
         if (newCompanyLogo) {
             if (company.companyLogo && fs.existsSync(company.companyLogo)) {
                 try {
@@ -224,3 +224,27 @@ exports.updateCompany = async (req, res) => {
         });
     }
 };
+
+exports.getCompanyList = async (req, res) => {
+    try {
+        const list = await Company.find()
+
+        if (!list || list.length === 0) {
+            return res.status(404).json({ message: "No data found" });
+        }
+
+        const updatedList = list.map((item)=>{
+            return{
+                label: item.companyName,
+                value: item._id
+            }
+        })
+
+        res.status(200).json({ data: updatedList })
+    } catch (error) {
+        res.status(500).json({
+            message: 'An error occurred while fetch the company',
+            error: error.message
+        });
+    }
+}
