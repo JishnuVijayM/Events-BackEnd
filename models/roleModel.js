@@ -20,6 +20,10 @@ const permissionSchema = new mongoose.Schema({
     delete: {
         type: Boolean,
         required: false
+    },
+    viewAll:{
+        type: Boolean,
+        required: false
     }
 }, { _id: false });
 
