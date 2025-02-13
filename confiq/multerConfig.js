@@ -25,6 +25,8 @@ const storage = multer.diskStorage({
             uploadPath += 'userProfile';
         } else if (req.originalUrl.includes('/createCompany') || req.originalUrl.includes('/updateCompany')) {
             uploadPath += 'companyLogo';
+        } else if (req.originalUrl.includes('/createEvent') || req.originalUrl.includes('/updateEvent')) {
+            uploadPath += 'eventBanner';
         } else {
             uploadPath += 'misc'; // Default directory for unspecified routes
         }

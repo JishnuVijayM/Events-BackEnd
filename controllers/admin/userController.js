@@ -11,7 +11,7 @@ exports.getAllUsers = async (req, res) => {
 
         if (!userList.length) {
             return res.status(404).json({ message: "No users found" });
-        }
+        }   
 
         const roleList = await Role.find();
 

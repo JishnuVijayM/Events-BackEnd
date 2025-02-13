@@ -5,6 +5,8 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
 
+
+
 exports.initial = async (req, res) => {
     const users = await User.find({});
 
@@ -14,6 +16,7 @@ exports.initial = async (req, res) => {
 
     return res.status(200).json(users);
 };
+
 
 exports.login = async (req, res) => {
     try {
