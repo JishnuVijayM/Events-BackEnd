@@ -233,3 +233,28 @@ exports.updateEvent = async (req, res) => {
         });
     }
 };
+
+exports.listEvent = async(req,res)=>{
+    try {
+        const data = await Event.find()
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ message: "No events found" });
+        }
+
+        const updatedData = data.map((item)=>{
+            return{
+                label: item.name,
+                value: item._id
+            }
+        })
+
+        res.status(200).json({ data: updatedData })
+        
+    } catch (error) {
+        res.status(500).json({
+            message: "An error occurred while fetching the event",
+            error: error.message
+        });
+    }
+}
