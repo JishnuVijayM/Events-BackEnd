@@ -2,6 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const Event = require('../../models/eventModel')
+const EventUser = require('../../models/eventUserModel');
+const Role = require('../../models/roleModel');
 
 exports.createEvent = async (req, res) => {
     try {
@@ -234,7 +236,7 @@ exports.updateEvent = async (req, res) => {
     }
 };
 
-exports.listEvent = async(req,res)=>{
+exports.listEvent = async (req, res) => {
     try {
         const data = await Event.find()
 
@@ -242,15 +244,15 @@ exports.listEvent = async(req,res)=>{
             return res.status(404).json({ message: "No events found" });
         }
 
-        const updatedData = data.map((item)=>{
-            return{
+        const updatedData = data.map((item) => {
+            return {
                 label: item.name,
                 value: item._id
             }
         })
 
         res.status(200).json({ data: updatedData })
-        
+
     } catch (error) {
         res.status(500).json({
             message: "An error occurred while fetching the event",
@@ -258,3 +260,126 @@ exports.listEvent = async(req,res)=>{
         });
     }
 }
+
+exports.createEventUser = async (req, res) => {
+    try {
+        const {
+            name,
+            email,
+            event,
+            role,
+            qualification,
+            gender,
+            city,
+            expertise,
+            regDate,
+            status,
+            phone,
+            linkedIn,
+            experience, } = req.body;
+        const resume = req.file ? req.file.path : null;
+
+        if (!name || !email || !event || !role || !regDate || !status || !phone) {
+            if (resume) fs.unlinkSync(resume);
+            return res.status(400).json({ message: "Please fill in all required fields" });
+        }
+
+        const newUser = new EventUser({
+            name,
+            email,
+            event,
+            role,
+            qualification,
+            gender,
+            city,
+            expertise,
+            regDate,
+            status,
+            phone,
+            linkedIn,
+            experience,
+            resume,
+        });
+
+        await newUser.save();
+        res.status(201).json({ message: "User registered successfully" });
+
+    } catch (error) {
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
+        res.status(500).json({
+            message: "An error occurred while registering event user",
+            error: error.message,
+        });
+    }
+}; 
+
+exports.viewAllEventUsers = async (req, res) => {
+    try {
+        const userList = await EventUser.find();
+
+        if (!userList.length) {
+            return res.status(404).json({ message: "No events found" });
+        }
+
+        const eventList = await Event.find();
+        const roleList = await Role.find();
+
+        const updatedData = userList.map((item, index) => {
+            const event = eventList.find(event => event._id.toString() === item.event?.toString());
+
+            const roleData = roleList.find((role) => role._id.toString() === item.role.toString());
+
+            return {
+                id: item._id,
+                no: index + 1,
+                name: item.name,
+                email: item.email,
+                event: event ? event.name : "Unknown Event", 
+                'reg-date': new Date(item.regDate).toLocaleDateString(),
+                status: item.status,
+                role: roleData ? roleData.name : "Unknown"
+            };
+        });
+
+        return res.status(200).json(updatedData);
+
+    } catch (error) {
+        res.status(500).json({
+            message: "An error occurred while fetching event users",
+            error: error.message
+        });
+    }
+};
+
+exports.deleteEventUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: 'Id not found' });
+        }
+
+        const userList = await EventUser.findById(id);
+
+        if (!userList) {
+            return res.status(404).json({ message: 'No User found' });
+        }
+
+        if (userList.resume) {
+            try {
+                fs.unlinkSync(userList.resume);
+                console.log('resume deleted successfully');
+            } catch (err) {
+                console.error('Error deleting resume:', err);
+            }
+        }
+
+        await userList.deleteOne();
+        res.status(200).json({ message: 'User deleted successfully' });
+
+    } catch (error) {
+        res.status(500).json({ message: 'An error occurred', error: error.message });
+    }
+};

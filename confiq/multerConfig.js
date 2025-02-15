@@ -2,9 +2,17 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 
-// Create base uploads directory if it doesn't exist
+// Create base uploads directories if they don't exist
 const createUploadDirectories = () => {
-    const directories = ['uploads', 'uploads/userProfile', 'uploads/companyLogo'];
+    const directories = [
+        'uploads', 
+        'uploads/userProfile', 
+        'uploads/companyLogo', 
+        'uploads/eventBanner', 
+        'uploads/misc', 
+        'uploads/eventResume'
+    ];
+
     directories.forEach(dir => {
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
@@ -15,20 +23,24 @@ const createUploadDirectories = () => {
 // Create directories on startup
 createUploadDirectories();
 
-// Configure storage
+// Configure storage dynamically
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         let uploadPath = 'uploads/';
 
-        // Determine the appropriate subdirectory based on the route
-        if (req.originalUrl.includes('/createUser') || req.originalUrl.includes('/updateUser')) {
+        // Check the field name first for resume uploads
+        if (file.fieldname === 'resume') {
+            uploadPath += 'eventResume';
+        }
+        // Then check routes for other file types
+        else if (req.originalUrl.includes('/createUser') || req.originalUrl.includes('/updateUser')) {
             uploadPath += 'userProfile';
         } else if (req.originalUrl.includes('/createCompany') || req.originalUrl.includes('/updateCompany')) {
             uploadPath += 'companyLogo';
         } else if (req.originalUrl.includes('/createEvent') || req.originalUrl.includes('/updateEvent')) {
             uploadPath += 'eventBanner';
         } else {
-            uploadPath += 'misc'; // Default directory for unspecified routes
+            uploadPath += 'misc'; // Default directory
         }
 
         // Ensure the directory exists
@@ -45,38 +57,33 @@ const storage = multer.diskStorage({
     }
 });
 
-// Configure file filter
+// Configure file filter (Allow both images & PDFs)
 const fileFilter = (req, file, cb) => {
-    // Define allowed mime types
-    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    const allowedMimes = [
+        'image/jpeg', 'image/jpg', 'image/png', 'image/gif', // Images
+        'application/pdf' // PDF
+    ];
 
     if (allowedMimes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file type. Only JPEG, JPG, PNG, and GIF files are allowed.'), false);
+        cb(new Error('Invalid file type. Only JPEG, JPG, PNG, GIF, and PDF files are allowed.'), false);
     }
 };
 
-// Create multer instance with configuration
+// Create multer instance
 const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024 // 5MB limit
+        fileSize: 10 * 1024 * 1024 // 10MB limit for PDFs & images
     }
 });
 
 // Export different upload configurations
 module.exports = {
-    // Single file upload
     single: (fieldName) => upload.single(fieldName),
-
-    // Multiple files upload
     array: (fieldName, maxCount) => upload.array(fieldName, maxCount),
-
-    // Multiple fields upload
     fields: (fields) => upload.fields(fields),
-
-    // Raw multer instance
     upload: upload
 };
