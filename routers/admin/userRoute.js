@@ -8,7 +8,7 @@ const router = express.Router()
 router.route('/getUsers').get(authenticateJWT,getAllUsers)
 router.post('/createUser', uploadConfig.single('profilePicture'), authenticateJWT, createUser);
 router.route('/deleteUser/:id').delete(authenticateJWT, deleteUser)
-router.route('/viewUser/:id').get(viewUser)
+router.route('/viewUser/:id').get(authenticateJWT,viewUser)
 router.put('/updateUser/:id', uploadConfig.single('profilePicture'), authenticateJWT, updateUser);
 
 module.exports = router

@@ -49,8 +49,6 @@ exports.login = async (req, res) => {
             { expiresIn: process.env.JWT_EXPIRATION }
         );
 
-
-
         return res.status(200).json({
             message: "Login successful",
             token,
