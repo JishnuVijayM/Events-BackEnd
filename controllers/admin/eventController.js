@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 const Event = require('../../models/eventModel')
-const EventUser = require('../../models/eventUserModel');
+const EventUser = require('../../models/userEventModel');
 const Role = require('../../models/roleModel');
 
 exports.createEvent = async (req, res) => {
@@ -284,6 +284,9 @@ exports.createEventUser = async (req, res) => {
             return res.status(400).json({ message: "Please fill in all required fields" });
         }
 
+        console.log(resume);
+
+
         const newUser = new EventUser({
             name,
             email,
@@ -313,7 +316,7 @@ exports.createEventUser = async (req, res) => {
             error: error.message,
         });
     }
-}; 
+};
 
 exports.viewAllEventUsers = async (req, res) => {
     try {
@@ -336,7 +339,7 @@ exports.viewAllEventUsers = async (req, res) => {
                 no: index + 1,
                 name: item.name,
                 email: item.email,
-                event: event ? event.name : "Unknown Event", 
+                event: event ? event.name : "Unknown Event",
                 'reg-date': new Date(item.regDate).toLocaleDateString(),
                 status: item.status,
                 role: roleData ? roleData.name : "Unknown"
@@ -381,5 +384,107 @@ exports.deleteEventUser = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: 'An error occurred', error: error.message });
+    }
+};
+
+exports.viewEventUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!id) {
+            return res.status(400).json({ message: 'Id not found' })
+        }
+
+        const userDetails = await EventUser.findById(id)
+
+        if (!userDetails) {
+            return res.status(404).json({ message: "No user found" });
+        }
+
+        return res.status(200).json(userDetails)
+
+    } catch (error) {
+        res.status(500).json({
+            message: "An error occurred while fetching the event",
+            error: error.message
+        });
+    }
+}
+
+exports.updateEventUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            if (req.file) fs.unlinkSync(req.file.path);
+            return res.status(400).json({ message: 'ID not provided' });
+        }
+
+        const eventData = await EventUser.findById(id);
+        if (!eventData) {
+            if (req.file) fs.unlinkSync(req.file.path);
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const {
+            name,
+            email,
+            event,
+            role,
+            qualification,
+            gender,
+            city,
+            expertise,
+            regDate,
+            status,
+            phone,
+            linkedIn,
+            experience,
+        } = req.body;
+
+        let resume = eventData.resume; 
+        if (req.file) {
+            resume = req.file.path;
+            if (eventData.resume) {
+                try {
+                    fs.unlinkSync(eventData.resume); 
+                } catch (err) {
+                    console.error('Error deleting old resume:', err);
+                }
+            }
+        }
+
+        const updateData = {
+            name: name || eventData.name,
+            email: email || eventData.email,
+            event: event || eventData.event,
+            role: role || eventData.role,
+            qualification: qualification || eventData.qualification,
+            gender: gender || eventData.gender,
+            city: city || eventData.city,
+            expertise: expertise || eventData.expertise,
+            regDate: regDate || eventData.regDate,
+            status: status || eventData.status,
+            phone: phone || eventData.phone,
+            linkedIn: linkedIn || eventData.linkedIn,
+            experience: experience || eventData.experience,
+            resume, 
+        };
+
+        const updatedUser = await EventUser.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (!updatedUser) {
+            return res.status(500).json({ message: 'Failed to update user' });
+        }
+
+        res.status(201).json({ message: 'User updated successfully', user: updatedUser });
+
+    } catch (error) {
+        if (req.file) {
+            fs.unlinkSync(req.file.path);
+        }
+        res.status(500).json({
+            message: 'An error occurred while updating the user',
+            error: error.message
+        });
     }
 };

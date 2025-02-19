@@ -1,7 +1,7 @@
 const express = require('express')
 const { authenticateJWT } = require('../../middleware/jwtVerification')
 const uploadConfig = require('../../confiq/multerConfig');
-const { createEvent, viewAllEvents, deleteEvent, viewEvent, updateEvent, listEvent, createEventUser, viewAllEventUsers, deleteEventUser } = require('../../controllers/admin/eventController');
+const { createEvent, viewAllEvents, deleteEvent, viewEvent, updateEvent, listEvent, createEventUser, viewAllEventUsers, deleteEventUser, viewEventUser, updateEventUser } = require('../../controllers/admin/eventController');
 
 const router = express.Router()
 
@@ -15,6 +15,8 @@ router.get('/getEventList', listEvent)
 router.post('/createEventUser', uploadConfig.single('resume'),authenticateJWT, createEventUser);
 router.get('/getEventUsers',authenticateJWT, viewAllEventUsers)
 router.route('/deleteEventUser/:id').delete(authenticateJWT, deleteEventUser)
+router.route('/viewEventUser/:id').get(authenticateJWT, viewEventUser)
+router.put('/updateEventUser/:id', uploadConfig.single('resume'), authenticateJWT, updateEventUser);
 
 
 module.exports = router;
