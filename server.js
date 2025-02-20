@@ -11,6 +11,7 @@ const adminUserRoutes = require('./routers/admin/userRoute')
 const companyRoutes = require('./routers/admin/companyRoute')
 const jobRoutes = require('./routers/admin/jobRoute')
 const eventRoutes = require('./routers/admin/eventRoute')
+const pageRoutes = require('./routers/admin/staticPageRoute')
 
 const app = express()
 app.use(express.json())
@@ -24,6 +25,7 @@ app.use('/user', adminUserRoutes)
 app.use('/company', companyRoutes)
 app.use('/job', jobRoutes)
 app.use('/event', eventRoutes)
+app.use('/page', pageRoutes)
 
 const PORT = process.env.PORT || 4000
 
