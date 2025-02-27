@@ -4,7 +4,6 @@ require('dotenv').config()
 const cors = require('cors');
 const path = require('path');
 
-
 const adminAuthRouter = require('./routers/admin/authRoute')
 const adminRoleRoutes = require('./routers/admin/roleRoute')
 const adminUserRoutes = require('./routers/admin/userRoute')
@@ -12,6 +11,7 @@ const companyRoutes = require('./routers/admin/companyRoute')
 const jobRoutes = require('./routers/admin/jobRoute')
 const eventRoutes = require('./routers/admin/eventRoute')
 const pageRoutes = require('./routers/admin/staticPageRoute')
+const faqRoutes = require('./routers/admin/faqRoute')
 
 const app = express()
 app.use(express.json())
@@ -26,6 +26,7 @@ app.use('/company', companyRoutes)
 app.use('/job', jobRoutes)
 app.use('/event', eventRoutes)
 app.use('/page', pageRoutes)
+app.use('/faq', faqRoutes)
 
 const PORT = process.env.PORT || 4000
 
