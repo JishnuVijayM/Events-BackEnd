@@ -6,7 +6,7 @@ const { authenticateJWT } = require('../../middleware/jwtVerification');
 const router = express.Router()
 
 router.route('/getUsers').get(authenticateJWT,getAllUsers)
-router.post('/createUser', uploadConfig.single('profilePicture'), authenticateJWT, createUser);
+router.post('/createUser', uploadConfig.single('profilePicture'), createUser);
 router.route('/deleteUser/:id').delete(authenticateJWT, deleteUser)
 router.route('/viewUser/:id').get(authenticateJWT,viewUser)
 router.put('/updateUser/:id', uploadConfig.single('profilePicture'), authenticateJWT, updateUser);

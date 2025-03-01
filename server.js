@@ -12,6 +12,7 @@ const jobRoutes = require('./routers/admin/jobRoute')
 const eventRoutes = require('./routers/admin/eventRoute')
 const pageRoutes = require('./routers/admin/staticPageRoute')
 const faqRoutes = require('./routers/admin/faqRoute')
+const notificationRoutes = require('./routers/admin/notificationRoute')
 
 const app = express()
 app.use(express.json())
@@ -27,6 +28,8 @@ app.use('/job', jobRoutes)
 app.use('/event', eventRoutes)
 app.use('/page', pageRoutes)
 app.use('/faq', faqRoutes)
+app.use('/notify', notificationRoutes)
+
 
 const PORT = process.env.PORT || 4000
 
