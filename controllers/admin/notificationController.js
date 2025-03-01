@@ -124,3 +124,34 @@ exports.deleteNotify = async (req, res) => {
         res.status(500).json({ message: 'An error occurred', error: error.message });
     }
 }
+
+exports.updateNotify = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, type, event, target, content, dateAndTime, channel, expDate } = req.body;
+
+        if (!id) {
+            return res.status(400).json({ message: 'Id not found' });
+        }
+
+        const updateNotify = await Notification.findByIdAndUpdate(
+            id,
+            { title, type, event, target, content, dateAndTime, channel, expDate },
+            { new: true, runValidators: true }
+        );
+
+        if (!updateNotify) {
+            return res.status(404).json({ message: 'Notification not found' });
+        }
+
+        res.status(201).json({
+            message: 'Notification updated successfully',
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: 'An error occurred while updating the notification',
+            error: error.message
+        });
+    }
+};
