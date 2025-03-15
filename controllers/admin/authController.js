@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer');
 const fs = require('fs');
 const path = require('path');
+const Role = require('../../models/roleModel');
+
 
 
 
@@ -40,6 +42,12 @@ exports.login = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
+        const existRole = await Role.findById(existUser.role);
+
+        if (!existRole) {
+            return res.status(403).json({ message: "Required role or permissions not found." });
+        }
+
         existUser.lastLoginAt = new Date();
         await existUser.save();
 
@@ -52,7 +60,8 @@ exports.login = async (req, res) => {
         return res.status(200).json({
             message: "Login successful",
             token,
-            role: existUser.role,
+            id: existUser.role,
+            role: existRole.permissions
         });
 
     } catch (error) {
@@ -118,11 +127,11 @@ exports.forgotPassword = async (req, res) => {
 
         const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
 
-        const templatePath = path.join(__dirname, '../../templates/email_template.html'); 
+        const templatePath = path.join(__dirname, '../../templates/email_template.html');
         let emailTemplate = fs.readFileSync(templatePath, 'utf8');
 
         emailTemplate = emailTemplate
-            .replace('{{userName}}', user.userName || 'User') 
+            .replace('{{userName}}', user.userName || 'User')
             .replace('{{resetLink}}', resetLink);
 
         const transporter = nodemailer.createTransport({
