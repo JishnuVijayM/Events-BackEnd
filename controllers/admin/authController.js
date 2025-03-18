@@ -125,7 +125,7 @@ exports.forgotPassword = async (req, res) => {
 
         const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
+        const resetLink = `${process.env.CLIENT_URL}reset-password/${token}`;
 
         const templatePath = path.join(__dirname, '../../templates/email_template.html');
         let emailTemplate = fs.readFileSync(templatePath, 'utf8');
