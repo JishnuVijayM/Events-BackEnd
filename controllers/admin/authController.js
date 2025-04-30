@@ -10,13 +10,15 @@ const Role = require('../../models/roleModel');
 
 
 exports.initial = async (req, res) => {
-    const users = await User.find({});
 
-    if (!users) {
-        return res.status(404).json({ message: "No user found" });
-    }
+    const { data } = req.body;
+    // const users = await User.find({});
 
-    return res.status(200).json(users);
+    // if (!users) {
+    //     return res.status(404).json({ message: "No user found" });
+    // }
+
+    return res.status(200).json({ message: "Happy coding", data });
 };
 
 
